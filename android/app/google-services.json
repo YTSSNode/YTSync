@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1028370444934",
+    "firebase_url": "https://ytnode-685c7-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "ytnode-685c7",
+    "storage_bucket": "ytnode-685c7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028370444934:android:ac08b2df74c1b68a709707",
+        "android_client_info": {
+          "package_name": "com.example.ytsync"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC52Zen8eaWC2whcrCNk60z0uZY4jDRTw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
