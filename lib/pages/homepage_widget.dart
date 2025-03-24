@@ -233,7 +233,26 @@ dynamic _getAnnouncementAlertDialog(
     actions: [
       TextButton(
         onPressed: () async {
-          if (!data.isCompleted()) {
+          if (data.isCompleted()) {
+            if (await data.uncomplete()) {
+              if (context.mounted) {
+                Navigator.pop(context);
+                showSnackBar(
+                  context,
+                  "Announcement is now not completed. (\"${data.getTitle()}\")",
+                );
+              }
+
+              setState(() => announcements.sort(AnnouncementData.sortFunction));
+            } else {
+              if (context.mounted) {
+                showSnackBar(
+                  context,
+                  "Failed to sync announcement completion with the server. (Try checking your internet connection)",
+                );
+              }
+            }
+          } else {
             if (await data.complete()) {
               if (context.mounted) {
                 Navigator.pop(context);
@@ -254,18 +273,11 @@ dynamic _getAnnouncementAlertDialog(
             }
           }
         },
-        style:
-            data.isCompleted()
-                ? ButtonStyle(
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  mouseCursor: DefaultMouseCursor(),
-                )
-                : null,
         child: Text(
-          data.isCompleted() ? "Completed" : "Complete",
+          data.isCompleted() ? "Undo" : "Complete",
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: data.isCompleted() ? Colors.grey : Colors.green,
+            color: data.isCompleted() ? Colors.red : Colors.green,
           ),
         ),
       ),

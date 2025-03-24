@@ -138,7 +138,13 @@ class AnnouncementData {
   Future<bool> complete([bool byServer = false]) async {
     _isCompleted = true;
     await prefs?.setBool("announcement_completion_$_checksum", true);
-    return byServer ? true : await completeAnnouncementInServer(this);
+    return byServer ? true : await completeAnnouncementInServer(this, true);
+  }
+
+  Future<bool> uncomplete([bool byServer = false]) async {
+    _isCompleted = false;
+    await prefs?.setBool("announcement_completion_$_checksum", false);
+    return byServer ? true : await completeAnnouncementInServer(this, false);
   }
 
   String getAuthorUUID() {

@@ -338,7 +338,7 @@ Future<bool> deleteAnnouncementFromServer(AnnouncementData data) async {
   return true;
 }
 
-Future<bool> completeAnnouncementInServer(data) async {
+Future<bool> completeAnnouncementInServer(data, bool complete) async {
   try {
     var database = FirebaseFirestore.instance;
     await database
@@ -346,7 +346,7 @@ Future<bool> completeAnnouncementInServer(data) async {
         .doc(account.uuid)
         .collection("completed")
         .doc(data.getChecksum())
-        .set({"isCompleted": true});
+        .set({"isCompleted": complete});
   } on FirebaseException catch (e) {
     getMessageFromErrorCode(e);
     return false;
