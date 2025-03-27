@@ -132,8 +132,8 @@ Card _createAnnouncementCard(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  "Due: ${announcements[index].isCompleted() ? announcements[index].getDue() :
-                          deadlineStr(announcements[index].getDueAsDateTime())}",
+                  announcements[index].isCompleted() ? announcements[index].getDue() :
+                          deadlineStr(announcements[index].getDueAsDateTime()),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color:
@@ -142,8 +142,8 @@ Card _createAnnouncementCard(
                             : switch (announcements[index].getDaysToDue()) {
                               0 => Color.fromRGBO(255, 0, 0, 1),
                               1 || 2 => Colors.orange,
-                              3 => Color(0xFFFFC700),
-                              4 => Colors.lime,
+                              3 => Colors.orangeAccent,
+                              4 => Colors.lightGreen,
                               var x =>
                                 x < 0
                                     ? Color.fromRGBO(255, 120, 120, 1)
