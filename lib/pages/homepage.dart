@@ -78,6 +78,7 @@ class HomePageState extends State<HomePage> {
     String title,
     String clazz,
     DateTime due,
+    DateTime? publish,
     String author,
     String description,
     String uuid,
@@ -87,6 +88,7 @@ class HomePageState extends State<HomePage> {
       title,
       clazz,
       due,
+      publish,
       author,
       description,
       uuid,
@@ -279,6 +281,9 @@ class HomePageState extends State<HomePage> {
         padding: EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Text("Today is ${fullDateStr(DateTime.now())}", style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold
+            )),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

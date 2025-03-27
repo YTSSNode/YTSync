@@ -31,6 +31,7 @@ class AddAnnouncementPageState extends State<AddAnnouncementPage> {
   String? _selectedClass;
 
   bool isPublic = false;
+  bool isPublishDate = true;
 
   @override
   Widget build(BuildContext context) {
@@ -119,6 +120,30 @@ class AddAnnouncementPageState extends State<AddAnnouncementPage> {
                 },
               ),
               SizedBox(height: 24),
+              Divider(),
+
+              Row(
+                children: [
+                  Text(
+                    "Would you like to publish the date of the announcement?",
+                  ),
+                ],
+              ),
+
+              Row(
+                children: [
+                  Checkbox(
+                    checkColor: Colors.white,
+                    value: isPublishDate,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        isPublishDate = value ?? false;
+                      });
+                    },
+                  ),
+                  Text("Send Publish Date"),
+                ],
+              ),
 
               Divider(),
 
@@ -165,6 +190,7 @@ class AddAnnouncementPageState extends State<AddAnnouncementPage> {
                         _titleController.text,
                         clazz,
                         pickedDate,
+                        isPublishDate ? DateTime.now() : null,
                         account.name,
                         _descriptionController.text,
                         account.uuid,

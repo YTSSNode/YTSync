@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:ytsync/firebase_options.dart';
-import 'package:ytsync/pages/placeholder.dart';
 import 'package:ytsync/main.dart';
 import 'package:ytsync/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -138,6 +137,7 @@ Future<(bool, String)> firebaseInit([
           content["title"],
           content["class"],
           DateTime.parse(content["due"].toDate().toString()),
+          content.containsKey("publish") ? DateTime.parse(content["publish"].toDate().toString()) : null,
           content["author"],
           content["desc"],
           content["authorUUID"],
@@ -177,6 +177,7 @@ Future<(bool, String)> firebaseInit([
               content["title"],
               content["class"],
               DateTime.parse(content["due"].toDate().toString()),
+              content.containsKey("publish") ? DateTime.parse(content["publish"].toDate().toString()) : null,
               content["author"],
               content["desc"],
               content["authorUUID"],
@@ -259,7 +260,8 @@ Future<bool> sendAnnouncementToServer(
     var database = FirebaseFirestore.instance;
     data.setId(Random().nextInt(1 << 16));
     if (isPublic) {
-      await database.collection("announcements").doc(data.getChecksum()).set({
+      var document = database.collection("announcements").doc(data.getChecksum());
+      await document.set({
         "author": account.name,
         "authorUUID": data.getAuthorUUID(),
         "class": data.getClass(),
@@ -269,6 +271,10 @@ Future<bool> sendAnnouncementToServer(
         "title": data.getTitle(),
       });
 
+      if (data.getPublishAsDateTime() != null) {
+        await document.update({"publish": data.getPublishAsDateTime()});
+      }
+
       await database
           .collection("users")
           .doc(account.uuid)
@@ -276,12 +282,12 @@ Future<bool> sendAnnouncementToServer(
           .doc(data.getChecksum())
           .set({"isCompleted": false});
     } else {
-      await database
+      var document = database
           .collection("users")
           .doc(account.uuid)
           .collection("announcements")
-          .doc(data.getChecksum())
-          .set({
+          .doc(data.getChecksum());
+      await document.set({
             "author": account.name,
             "authorUUID": data.getAuthorUUID(),
             "class": data.getClass(),
@@ -290,6 +296,10 @@ Future<bool> sendAnnouncementToServer(
             "id": data.getId(),
             "title": data.getTitle(),
           });
+
+      if (data.getPublishAsDateTime() != null) {
+        await document.update({"publish": data.getPublishAsDateTime()});
+      }
 
       await database
           .collection("users")

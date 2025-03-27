@@ -51,6 +51,7 @@ class AnnouncementData {
 
   String _title, _clazz, _author, _desc;
   DateTime _due;
+  DateTime? _publish;
   bool _isCompleted = false;
   final bool _isPublic;
 
@@ -75,6 +76,12 @@ class AnnouncementData {
     input.add(b4);
     input.add(b5);
     input.add(b6);
+    
+    var publishDate = _publish;
+    if (publishDate != null) {
+      input.add(int32bytes(publishDate.millisecondsSinceEpoch));
+    }
+
     input.close();
 
     _checksum = output.events.single;
@@ -84,6 +91,7 @@ class AnnouncementData {
     String title,
     String clazz,
     DateTime due,
+    DateTime? publish,
     String author,
     String description,
     String authorUUID,
@@ -91,6 +99,7 @@ class AnnouncementData {
   ) : _title = title,
       _clazz = clazz,
       _due = due,
+      _publish = publish,
       _author = author,
       _desc = description,
       _authorUUID = authorUUID,
@@ -163,12 +172,21 @@ class AnnouncementData {
     return _authorUUID == account.uuid ? "You" : _author;
   }
 
+  String getPublish() {
+    var publishDate = _publish;
+    return publishDate == null ? "" : dateFormatDateTime(publishDate);
+  }
+
   String getDue() {
     return dateFormatDateTime(_due);
   }
 
   DateTime getDueAsDateTime() {
     return _due;
+  }
+
+  DateTime? getPublishAsDateTime() {
+    return _publish;
   }
 
   String getDesc() {
@@ -224,7 +242,6 @@ class AnnouncementData {
 
 // Format the date as month abbreviation + day
 String dateFormatDateTime(DateTime pickedDate) {
-  // TODO: lang
   List<String> monthNames = [
     'Jan',
     'Feb',
@@ -241,4 +258,49 @@ String dateFormatDateTime(DateTime pickedDate) {
   ];
 
   return "${monthNames[pickedDate.month - 1]} ${pickedDate.day}";
+}
+
+String daysLeftFormatDateTime(int days) {
+  if (days < 0) {
+    return "Late";
+  } else if (days == 0) {
+    return "Today";
+  } else if (days == 1) {
+    return "Tomorrow";
+  } else if (days <= 7) {
+    return "$days Days";
+  } else if (days < 14) {
+    return "> 1 Week";
+  } else if (days < 28) {
+    return "> ${(days / 7).toInt()} Weeks";
+  } else if (days <= 56) {
+    return "> 1 Month";
+  }
+  
+  return "> ${(days / 28).toInt()} Months";
+}
+
+String deadlineStr(DateTime date) {
+  DateTime toDate = DateTime(date.year, date.month, date.day);
+  DateTime fromDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  return "${dateFormatDateTime(toDate)} | ${daysLeftFormatDateTime(toDate.difference(fromDate).inDays)}";
+}
+
+String fullDateStr(DateTime date) {
+  List<String> monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  return "${date.day} ${monthNames[date.month - 1]} ${date.year}";
 }

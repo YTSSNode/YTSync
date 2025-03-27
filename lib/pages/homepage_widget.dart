@@ -132,7 +132,8 @@ Card _createAnnouncementCard(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  "Due: ${announcements[index].getDue()}",
+                  "Due: ${announcements[index].isCompleted() ? announcements[index].getDue() :
+                          deadlineStr(announcements[index].getDueAsDateTime())}",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color:
@@ -212,6 +213,13 @@ dynamic _getAnnouncementAlertDialog(
             Text(data.getAuthor()),
           ],
         ),
+        if (data.getPublish() != "")
+          Row(
+            children: [
+              Text("Posted Date: ", style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(data.getPublish()),
+            ],
+          ),
         Row(
           children: [
             Text("Due: ", style: TextStyle(fontWeight: FontWeight.bold)),
