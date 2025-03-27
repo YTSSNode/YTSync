@@ -142,7 +142,7 @@ Card _createAnnouncementCard(
                             : switch (announcements[index].getDaysToDue()) {
                               0 => Color.fromRGBO(255, 0, 0, 1),
                               1 || 2 => Colors.orange,
-                              3 => Colors.yellow,
+                              3 => Color(0xFFFFC700),
                               4 => Colors.lime,
                               var x =>
                                 x < 0
