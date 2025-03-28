@@ -8,6 +8,8 @@ import 'package:ytsync/pages/forgotpassword.dart';
 import 'package:ytsync/pages/homepage.dart';
 import 'package:ytsync/util.dart';
 
+import '../util.dart';
+
 class LogInPage extends StatefulWidget {
   const LogInPage({super.key});
 
@@ -215,6 +217,13 @@ class LogInPageState extends State<LogInPage> {
                                 showSnackBar(
                                   context,
                                   "Please fill in your email.",
+                                );
+                                return;
+                              } else if (!loginPage && (!_emailText.text.trimRight().endsWith("@ytss.edu.sg")
+                                           && !_emailText.text.trimRight().endsWith("@students.edu.sg"))) {
+                                showSnackBar(
+                                  context,
+                                  "Email must end in either @ytss.edu.sg or @students.edu.sg",
                                 );
                                 return;
                               }
