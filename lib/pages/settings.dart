@@ -67,21 +67,31 @@ class SettingsPageState extends State<SettingsPage> {
 
   void saveChanges() async {
     widget.onMultipleClassSelect(_selectedClasses);
-
-    changeAppTheme(_newTheme, widget, this);
-    Navigator.pop(context);
-    appSaveToPref();
-
-    showSnackBar(context, "Settings Saved!");
-
+    
     for (String className in _classesChanged) {
       if (_selectedClasses.contains(className)) {
-        await changeSelectedClassesInServer(className, true);
-        //TODO: add exception handle
+        if (!await changeSelectedClassesInServer(className, true)) {
+          if (context.mounted) {
+            showSnackBar(context, "Error: settings could not be synced. Try again.");
+          }
+        }
       } else {
-        await changeSelectedClassesInServer(className, false);
+        if (await changeSelectedClassesInServer(className, false)) {
+          if (context.mounted) {
+            showSnackBar(context, "Error: settings could not be synced. Try again.");
+          }
+        }
       }
     }
+
+    changeAppTheme(_newTheme, widget, this);
+    appSaveToPref();
+
+    if (context.mounted) {
+      Navigator.pop(context);
+      showSnackBar(context, "Settings Saved!");
+    }
+
     _classesChanged.clear();
   }
 
