@@ -10,9 +10,9 @@ import 'package:ytsync/main.dart';
 import 'package:ytsync/network.dart';
 
 class Account {
-  String name, email, uuid;
+  String name, id, uuid;
 
-  Account({required this.name, required this.email, required this.uuid});
+  Account({required this.name, required this.id, required this.uuid});
 }
 
 void showSnackBar(BuildContext context, msg) {

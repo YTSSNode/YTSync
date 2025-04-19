@@ -91,11 +91,8 @@ String getMessageFromErrorCode(e) {
 
 Future<(bool, String)> firebaseInit([
   bool initApp = true,
-  String email = "",
+  String idNum = "",
   String password = "",
-  String? name,
-  String clazz = "",
-  String registerNumber = "",
 ]) async {
   try {
     var database = FirebaseFirestore.instance;
@@ -110,16 +107,7 @@ Future<(bool, String)> firebaseInit([
         }
       });
 
-      var accountUnsafe =
-          name != null
-              ? await registerAccount(
-                email,
-                password,
-                name,
-                clazz,
-                registerNumber,
-              )
-              : await signIn(email, password);
+      var accountUnsafe = await signIn(idNum, password);
       if (accountUnsafe is String) {
         return (false, accountUnsafe);
       } else if (accountUnsafe is Account) {
@@ -433,7 +421,7 @@ Future<dynamic> registerAccount(
     }, SetOptions(merge: true));
 
     // Update current session with the new user details
-    currentSession = Account(name: name, email: emailAddress, uuid: uuid);
+    currentSession = Account(name: name, id: emailAddress, uuid: uuid);
   } on FirebaseAuthException catch (e) {
     // Return error message if FirebaseAuthException occurs
     return getMessageFromErrorCodeAuth(e);
@@ -444,7 +432,7 @@ Future<dynamic> registerAccount(
 }
 
 Future<dynamic> signIn(String emailAddress, String password) async {
-  var currentSession = Account(name: "guest", email: "guest", uuid: "0");
+  var currentSession = Account(name: "guest", id: "guest", uuid: "0");
 
   try {
     // Sign in with Firebase Authentication
@@ -470,7 +458,7 @@ Future<dynamic> signIn(String emailAddress, String password) async {
     }
 
     // Update currentSession with fetched data
-    currentSession = Account(name: name, email: emailAddress, uuid: uuid);
+    currentSession = Account(name: name, id: emailAddress, uuid: uuid);
   } on FirebaseAuthException catch (e) {
     return getMessageFromErrorCodeAuth(e);
   }

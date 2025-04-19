@@ -50,58 +50,10 @@ class ForgotPasswordState extends State<ForgotPasswordPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Enter your email to receive a reset link.",
-                    style: TextStyle(fontFamily: "Pacifico"),
+                    "Please contact the General Office for your password to be reset.",
+                    style: TextStyle(fontFamily: "instruct"),
                   ),
 
-                  SizedBox(height: 50.0),
-
-                  SizedBox(
-                    width: 350.0,
-                    child: Column(
-                      spacing: 15.0,
-                      children: [
-                        TextField(
-                          controller: _emailText,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Email',
-                          ),
-                        ),
-
-                        TextButton(
-                          onPressed: () async {
-                            if (_emailText.text.isEmpty) {
-                              showSnackBar(context, "Please fill in your email.");
-                              return;
-                            }
-                            
-                            int timeDiff = DateTime.now().difference(appState.passwordTime).inSeconds;
-                            if (timeDiff < 60) {
-                              showSnackBar(context, "You've tried to send a password reset too often. Please wait ${60 - timeDiff} seconds.");
-                              return;
-                            }
-                            appState.passwordTime = DateTime.now();
-                            prefs?.setInt("passwordForgetTime", appState.passwordTime.microsecondsSinceEpoch);
-
-                            String? msg = await resetPassword(_emailText.text);
-                            if (msg == null) {
-                              showSnackBar(context, "Reset password email sent.");
-                            } else {
-                              showSnackBar(context, msg);
-                              appState.passwordTime = DateTime.fromMillisecondsSinceEpoch(0);
-                              prefs?.setInt("passwordForgetTime", appState.passwordTime.microsecondsSinceEpoch);
-                            }
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all(
-                              Colors.amberAccent,
-                            ),
-                          ),
-                          child: Text(actionText),
-                        )],
-                    ),
-                  ),
                   SizedBox(height: 20.0),
                   TextButton(
                     onPressed: () {

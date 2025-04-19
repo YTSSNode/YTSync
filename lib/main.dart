@@ -18,10 +18,10 @@ void main() async {
 
   prefs = await SharedPreferences.getInstance();
 
-  if ((prefs?.getString("credential-email") ?? "") != "") {
+  if ((prefs?.getString("credential-id") ?? "") != "") {
     if ((await firebaseInit(
       true,
-      prefs?.getString("credential-email") ?? "",
+      prefs?.getString("credential-id") ?? "",
       (prefs?.getString("credential-pass") ?? ""),
     )).$1) {
       loggedIn = true;

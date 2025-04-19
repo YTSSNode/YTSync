@@ -218,7 +218,7 @@ class SettingsPageState extends State<SettingsPage> {
                       widget.availableClasses.clear();
                       widget.selectedClasses.clear();
 
-                      prefs?.setString("credential-email", "");
+                      prefs?.setString("credential-id", "");
                       prefs?.setString("credential-pass", "");
 
                       showSnackBar(context, "Signed out from current account!");

@@ -20,14 +20,8 @@ class LogInPage extends StatefulWidget {
 class LogInPageState extends State<LogInPage> {
   LogInPageState();
 
-  bool loginPage = true;
-
-  final TextEditingController _emailText = TextEditingController();
+  final TextEditingController _serialNumText = TextEditingController();
   final TextEditingController _passText = TextEditingController();
-  final TextEditingController _nameText = TextEditingController();
-  final TextEditingController _confirmPassText = TextEditingController();
-  final TextEditingController _classText = TextEditingController();
-  final TextEditingController _registerNumText = TextEditingController();
 
   final ForgotPasswordPage forgotPassPage = ForgotPasswordPage();
 
@@ -86,12 +80,7 @@ class LogInPageState extends State<LogInPage> {
                     SizedBox(height: 20),
 
                     // Login Text
-                    Text(
-                      loginPage
-                          ? "Please log in below."
-                          : "Please sign up below",
-                      style: TextStyle(fontFamily: "instruct", fontSize: 16),
-                    ),
+                    Text("Please log in below.", style: TextStyle(fontFamily: "instruct", fontSize: 16)),
                     SizedBox(height: 10),
 
                     // Form Fields
@@ -99,21 +88,12 @@ class LogInPageState extends State<LogInPage> {
                       width: 350.0,
                       child: Column(
                         children: [
-                          if (!loginPage)
-                            TextField(
-                              controller: _nameText,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'Username',
-                              ),
-                            ),
-
                           SizedBox(height: 15),
                           TextField(
-                            controller: _emailText,
+                            controller: _serialNumText,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
-                              hintText: 'Email',
+                              hintText: 'Identification Number',
                             ),
                           ),
                           SizedBox(height: 15),
@@ -130,74 +110,28 @@ class LogInPageState extends State<LogInPage> {
 
                           SizedBox(height: 10),
 
-                          if (!loginPage)
-                            TextField(
-                              obscureText: true,
-                              enableSuggestions: false,
-                              autocorrect: false,
-                              controller: _confirmPassText,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'Confirm Password',
-                              ),
-                            ),
-
-                          if (!loginPage) SizedBox(height: 10),
-
-                          if (!loginPage)
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    maxLength: 2,
-                                    controller: _classText,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      hintText: 'Class',
-                                      counterText: "",
-                                    ),
-                                  ),
-                                ),
-
-                                Expanded(
-                                  child: TextField(
-                                    inputFormatters: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.digitsOnly,
-                                    ],
-                                    controller: _registerNumText,
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      hintText: 'Register Number',
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-
                           SizedBox(height: 5),
 
                           // Forgot Password Link
-                          if (loginPage)
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => forgotPassPage,
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  "Forgot Password?",
-                                  style: TextStyle(
-                                    decoration: TextDecoration.underline,
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => forgotPassPage,
                                   ),
+                                );
+                              },
+                              child: Text(
+                                "Forgot Password?",
+                                style: TextStyle(
+                                  decoration: TextDecoration.underline,
                                 ),
                               ),
                             ),
+                          ),
 
                           SizedBox(height: 10.0),
 
@@ -206,137 +140,43 @@ class LogInPageState extends State<LogInPage> {
                             onPressed: () async {
                               if (loginButtonDisabled) return;
 
-                              if (!loginPage && _nameText.text.isEmpty) {
+                              if (_serialNumText.text.isEmpty) {
                                 showSnackBar(
                                   context,
-                                  "Please fill in your username.",
+                                  "Please fill in your ID number.",
                                 );
                                 return;
                               }
-                              if (_emailText.text.isEmpty) {
-                                showSnackBar(
-                                  context,
-                                  "Please fill in your email.",
-                                );
-                                return;
-                              } else if (!loginPage && (!_emailText.text.trimRight().endsWith("@ytss.edu.sg")
-                                           && !_emailText.text.trimRight().endsWith("@students.edu.sg"))) {
-                                showSnackBar(
-                                  context,
-                                  "Email must end in either @ytss.edu.sg or @students.edu.sg",
-                                );
-                                return;
-                              }
+                              
                               if (_passText.text.isEmpty) {
                                 showSnackBar(
                                   context,
                                   "Please fill in your password.",
                                 );
                                 return;
-                              } else if (!loginPage) {
-                                if (_passText.text.length < 8) {
-                                  showSnackBar(
-                                    context,
-                                    "Password must be at least 8 characters long.",
-                                  );
-                                  return;
-                                } else if (!RegExp(
-                                      r'[a-zA-Z]',
-                                    ).hasMatch(_passText.text) ||
-                                    !RegExp(r'\d').hasMatch(_passText.text)) {
-                                  showSnackBar(
-                                    context,
-                                    "Password must have at least one alphabet and one number.",
-                                  );
-                                  return;
-                                }
-                              }
-
-                              if (!loginPage) {
-                                if (_confirmPassText.text.isEmpty) {
-                                  showSnackBar(
-                                    context,
-                                    "Please confirm your password.",
-                                  );
-                                  return;
-                                } else if (_confirmPassText.text !=
-                                    _passText.text) {
-                                  showSnackBar(
-                                    context,
-                                    "Passwords do not match. Retype 'Confirm Password'.",
-                                  );
-                                  return;
-                                }
-                              }
-
-                              if (!loginPage) {
-                                if (_classText.text.isEmpty) {
-                                  showSnackBar(
-                                    context,
-                                    "Please fill in your form class.",
-                                  );
-                                  return;
-                                } else if (int.tryParse(_classText.text[0]) == null ||
-                                    !RegExp(
-                                      r'[a-zA-Z]',
-                                    ).hasMatch(_classText.text[1])) {
-                                  showSnackBar(
-                                    context,
-                                    "Class format is invalid. (eg: 4F)",
-                                  );
-                                  return;
-                                } else if ((int.tryParse(_classText.text[0]) ??
-                                            5) >=
-                                        5 ||
-                                    (int.tryParse(_classText.text[0]) ?? 0) <=
-                                        0) {
-                                  showSnackBar(
-                                    context,
-                                    "Classes can only be 1 to 4. (eg: 1A, 2A, 3A, 4A)",
-                                  );
-                                  return;
-                                }
-                              }
-
-                              if (!loginPage) {
-                                if (_registerNumText.text.isEmpty) {
-                                  showSnackBar(
-                                    context,
-                                    "Please fill in your register number.",
-                                  );
-                                  return;
-                                }
                               }
 
                               showSnackBar(
                                 context,
-                                loginPage
-                                    ? "Logging in. Please wait."
-                                    : "Signing you up! Please wait.",
+                                "Logging in. Please wait."
                               );
                               loginButtonDisabled = true;
 
                               var result = await firebaseInit(
                                 true,
-                                _emailText.text,
-                                _passText.text,
-                                loginPage ? null : _nameText.text,
-                                _classText.text,
-                                _registerNumText.text,
+                                _serialNumText.text,
+                                _passText.text
                               );
 
                               if (result.$1) {
                                 if (context.mounted) {
                                   showSnackBar(
-                                    context,
-                                    loginPage
-                                        ? "Login success!"
-                                        : "Sign up success. Welcome to YTSync!",
+                                    context, "Login success!"
                                   );
 
                                   prefs?.setString(
-                                    "credential-email",
-                                    _emailText.text,
+                                    "credential-id",
+                                    _serialNumText.text,
                                   );
                                   prefs?.setString(
                                     "credential-pass",
@@ -366,27 +206,12 @@ class LogInPageState extends State<LogInPage> {
                                 ),
                               ),
                             ),
-                            child: Text(loginPage ? "Log In" : "Sign Up"),
+                            child: Text("Log In"),
                           ),
                         ],
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    // Switch between Login/Signup
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          loginPage = !loginPage;
-                        });
-                      },
-                      child: Text(
-                        loginPage
-                            ? "Don't have an account? Sign up instead."
-                            : "Log in instead.",
-                        style: TextStyle(decoration: TextDecoration.underline),
-                      ),
-                    ),
                   ],
                 ),
               ),
