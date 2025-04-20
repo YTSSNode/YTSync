@@ -125,7 +125,9 @@ Future<(bool, String)> firebaseInit([
           content["title"],
           content["class"],
           DateTime.parse(content["due"].toDate().toString()),
-          content.containsKey("publish") ? DateTime.parse(content["publish"].toDate().toString()) : null,
+          content.containsKey("publish")
+              ? DateTime.parse(content["publish"].toDate().toString())
+              : null,
           content["author"],
           content["desc"],
           content["authorUUID"],
@@ -165,7 +167,9 @@ Future<(bool, String)> firebaseInit([
               content["title"],
               content["class"],
               DateTime.parse(content["due"].toDate().toString()),
-              content.containsKey("publish") ? DateTime.parse(content["publish"].toDate().toString()) : null,
+              content.containsKey("publish")
+                  ? DateTime.parse(content["publish"].toDate().toString())
+                  : null,
               content["author"],
               content["desc"],
               content["authorUUID"],
@@ -248,7 +252,9 @@ Future<bool> sendAnnouncementToServer(
     var database = FirebaseFirestore.instance;
     data.setId(Random().nextInt(1 << 16));
     if (isPublic) {
-      var document = database.collection("announcements").doc(data.getChecksum());
+      var document = database
+          .collection("announcements")
+          .doc(data.getChecksum());
       await document.set({
         "author": account.name,
         "authorUUID": data.getAuthorUUID(),
@@ -276,14 +282,14 @@ Future<bool> sendAnnouncementToServer(
           .collection("announcements")
           .doc(data.getChecksum());
       await document.set({
-            "author": account.name,
-            "authorUUID": data.getAuthorUUID(),
-            "class": data.getClass(),
-            "desc": data.getDesc(),
-            "due": data.getDueAsDateTime(),
-            "id": data.getId(),
-            "title": data.getTitle(),
-          });
+        "author": account.name,
+        "authorUUID": data.getAuthorUUID(),
+        "class": data.getClass(),
+        "desc": data.getDesc(),
+        "due": data.getDueAsDateTime(),
+        "id": data.getId(),
+        "title": data.getTitle(),
+      });
 
       if (data.getPublishAsDateTime() != null) {
         await document.update({"publish": data.getPublishAsDateTime()});
@@ -431,11 +437,18 @@ Future<dynamic> registerAccount(
   return currentSession;
 }
 
-Future<dynamic> signIn(String emailAddress, String password) async {
+Future<dynamic> signIn(String id, String password) async {
   var currentSession = Account(name: "guest", id: "guest", uuid: "0");
 
   try {
     // Sign in with Firebase Authentication
+    var emailAddress = "";
+    var database = FirebaseFirestore.instance;
+    var info = await database.collection("idsearch").doc(id).get();
+    if (info.exists) {
+      Map<String, dynamic>? content = info.data();
+      emailAddress = content?["email"] ?? "";
+    }
     await FirebaseAuth.instance.signInWithEmailAndPassword(
       email: emailAddress,
       password: password,
@@ -445,7 +458,6 @@ Future<dynamic> signIn(String emailAddress, String password) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       uuid = user.uid;
-      var database = FirebaseFirestore.instance;
 
       // Await the result from Firestore to ensure the name is fetched before continuing
       var docSnapshot = await database.collection("users").doc(uuid).get();
