@@ -473,6 +473,8 @@ Future<dynamic> signIn(String id, String password) async {
     currentSession = Account(name: name, id: emailAddress, uuid: uuid);
   } on FirebaseAuthException catch (e) {
     return getMessageFromErrorCodeAuth(e);
+  } on FirebaseException catch (e) {
+    return getMessageFromErrorCode(e);
   }
 
   return currentSession;
