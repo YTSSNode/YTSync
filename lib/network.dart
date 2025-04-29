@@ -28,11 +28,11 @@ String getMessageFromErrorCodeAuth(e) {
   switch (e.code) {
     case "account-exists-with-different-credential":
     case "email-already-in-use":
-      return "Email already used. Please go to the login page.";
+      return "ID already used.";
     case "wrong-password":
-      return "Wrong email/password combination.";
+      return "Wrong ID/password combination.";
     case "user-not-found":
-      return "No user found with this email.";
+      return "No user found with this ID.";
     case "user-disabled":
       return "User disabled.";
     case "too-many=requests":
@@ -40,7 +40,7 @@ String getMessageFromErrorCodeAuth(e) {
     case "operation-not-allowed":
       return "Server error, please try again later.";
     case "invalid-email":
-      return "Email address is invalid.";
+      return "ID is invalid.";
     case "weak-password":
       return "";
     case "expired-action-code":
