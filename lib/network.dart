@@ -318,6 +318,7 @@ Future<bool> deleteAnnouncementFromServer(AnnouncementData data) async {
   try {
     var database = FirebaseFirestore.instance;
     if (data.isPublic()) {
+      print(data.getChecksum());
       database.collection("announcements").doc(data.getChecksum()).delete();
       //TODO: use Cloud Functions to delete all users' announcements
     } else {

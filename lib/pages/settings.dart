@@ -389,6 +389,9 @@ class SettingsPageState extends State<SettingsPage> {
                           onPressed: () {
                             setState(() {
                               _selectedClasses.clear();
+                              _classesChanged.addAll(List.from(
+                                widget.availableClasses,
+                              ));
                             });
                           },
                           child: Text("Clear All"),
@@ -399,6 +402,9 @@ class SettingsPageState extends State<SettingsPage> {
                               _selectedClasses = List.from(
                                 widget.availableClasses,
                               );
+                              _classesChanged.addAll(List.from(
+                                widget.availableClasses,
+                              ));
                             });
                           },
                           child: Text("Select All"),

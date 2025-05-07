@@ -291,7 +291,7 @@ dynamic _getAnnouncementAlertDialog(
       ),
       TextButton(
         onPressed: () async {
-          if (data.getAuthorUUID() == account.uuid) {
+          if (data.getAuthorUUID() == account.uuid || account.permission == "teacher") {
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -342,7 +342,7 @@ dynamic _getAnnouncementAlertDialog(
           }
         },
         style:
-            data.getAuthorUUID() != account.uuid
+            data.getAuthorUUID() != account.uuid && account.permission != "teacher"
                 ? ButtonStyle(
                   overlayColor: WidgetStateProperty.all(Colors.transparent),
                   mouseCursor: DefaultMouseCursor(),
@@ -352,8 +352,7 @@ dynamic _getAnnouncementAlertDialog(
           "Delete",
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color:
-                data.getAuthorUUID() == account.uuid ? Colors.red : Colors.grey,
+            color: data.getAuthorUUID() == account.uuid || account.permission == "teacher" ? Colors.red : Colors.grey,
           ),
         ),
       ),
