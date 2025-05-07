@@ -10,9 +10,14 @@ import 'package:ytsync/main.dart';
 import 'package:ytsync/network.dart';
 
 class Account {
-  String name, id, uuid;
+  String name, id, uuid, permission;
 
-  Account({required this.name, required this.id, required this.uuid});
+  Account({
+    required this.name,
+    required this.id,
+    required this.uuid,
+    required this.permission,
+  });
 }
 
 void showSnackBar(BuildContext context, msg) {
@@ -76,7 +81,7 @@ class AnnouncementData {
     input.add(b4);
     input.add(b5);
     input.add(b6);
-    
+
     var publishDate = _publish;
     if (publishDate != null) {
       input.add(int32bytes(publishDate.millisecondsSinceEpoch));
@@ -276,13 +281,17 @@ String daysLeftFormatDateTime(int days) {
   } else if (days <= 56) {
     return "> 1 Month";
   }
-  
+
   return "> ${(days / 28).toInt()} Months";
 }
 
 String deadlineStr(DateTime date) {
   DateTime toDate = DateTime(date.year, date.month, date.day);
-  DateTime fromDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime fromDate = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
   return "${dateFormatDateTime(toDate)} | ${daysLeftFormatDateTime(toDate.difference(fromDate).inDays)}";
 }
 

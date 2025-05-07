@@ -427,7 +427,12 @@ Future<dynamic> registerAccount(
     }, SetOptions(merge: true));
 
     // Update current session with the new user details
-    currentSession = Account(name: name, id: emailAddress, uuid: uuid);
+    currentSession = Account(
+      name: name,
+      id: emailAddress,
+      uuid: uuid,
+      permission: "student",
+    );
   } on FirebaseAuthException catch (e) {
     // Return error message if FirebaseAuthException occurs
     return getMessageFromErrorCodeAuth(e);
@@ -438,10 +443,16 @@ Future<dynamic> registerAccount(
 }
 
 Future<dynamic> signIn(String id, String password) async {
-  var currentSession = Account(name: "guest", id: "guest", uuid: "0");
+  var currentSession = Account(
+    name: "guest",
+    id: "guest",
+    uuid: "0",
+    permission: "student",
+  );
 
   try {
     // Sign in with Firebase Authentication
+    var permission = "";
     var emailAddress = "";
     var database = FirebaseFirestore.instance;
     var info = await database.collection("idsearch").doc(id).get();
@@ -466,11 +477,17 @@ Future<dynamic> signIn(String id, String password) async {
         name =
             content?["name"] ??
             "guest"; // Ensure name is safely fetched, default to "guest"
+        permission = content?["permission"] ?? "student";
       }
     }
 
     // Update currentSession with fetched data
-    currentSession = Account(name: name, id: emailAddress, uuid: uuid);
+    currentSession = Account(
+      name: name,
+      id: emailAddress,
+      uuid: uuid,
+      permission: permission,
+    );
   } on FirebaseAuthException catch (e) {
     return getMessageFromErrorCodeAuth(e);
   } on FirebaseException catch (e) {
@@ -523,6 +540,18 @@ Future<dynamic> checkClassRegisterNumber(String clazz, String regNum) async {
     return "Class does not exist. ($clazz)"; // If the clazz isn't found in _formClass, return false
   } on FirebaseException catch (e) {
     // Handle Firebase-specific errors
+    return getMessageFromErrorCode(e);
+  }
+}
+
+Future<String?> passwordReset(String useruuid, String password) async {
+  // if its password resetting, run passwordReset(user(from admin panel),"YTSS@2025")
+  //else, run the function with the new password given (user = take from current session)
+  try {
+    var database = FirebaseFirestore.instance;
+  } on FirebaseAuthException catch (e) {
+    return getMessageFromErrorCodeAuth(e);
+  } on FirebaseException catch (e) {
     return getMessageFromErrorCode(e);
   }
 }
