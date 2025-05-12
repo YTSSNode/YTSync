@@ -277,6 +277,7 @@ class SettingsPageState extends State<SettingsPage> {
                         if (msg is String) {
                           showSnackBar(context, "Password change failed. $msg");
                         } else {
+                          userPass = _passText.text;
                           showSnackBar(context, "Password successfully changed!");
                         }
                       }

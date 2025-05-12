@@ -263,7 +263,7 @@ class HomePageState extends State<HomePage> {
           (context) => AlertDialog(
             title: Text("Warning: Action Needed on Password."),
             content: Text(
-              "Please change your password.",
+              "Please change your password to prevent anyone else from signing in to your account.",
             ),
             actions: [
               TextButton(
