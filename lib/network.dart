@@ -498,6 +498,18 @@ Future<dynamic> signIn(String id, String password) async {
   return currentSession;
 }
 
+Future<dynamic> changePassword(String pass) async {
+  try {
+    FirebaseAuth.instance.currentUser?.updatePassword(pass);
+  } on FirebaseAuthException catch (e) {
+    return getMessageFromErrorCodeAuth(e);
+  } on FirebaseException catch (e) {
+    return getMessageFromErrorCode(e);
+  }
+
+  return true;
+}
+
 Future<String?> signOut() async {
   try {
     await FirebaseAuth.instance.signOut();

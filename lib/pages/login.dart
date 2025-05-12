@@ -183,6 +183,8 @@ class LogInPageState extends State<LogInPage> {
                                     _passText.text,
                                   );
 
+                                  userPass = _passText.text;
+
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(

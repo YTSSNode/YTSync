@@ -1,4 +1,6 @@
 import 'dart:collection';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:ytsync/network.dart';
 import 'package:ytsync/pages/homepage_widget.dart';
@@ -252,6 +254,37 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    Future.delayed(Duration.zero, () => {
+      if (userPass.startsWith("YTSS@") && context.mounted) {
+        showDialog(
+          context: context,
+          builder:
+          (context) => AlertDialog(
+            title: Text("Warning: Action Needed on Password."),
+            content: Text(
+              "Please change your password.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(context, getSettingsPageMaterial());
+                },
+                child: Text("Go to Settings"),
+              ),
+            ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        )
+      }
+    });
 
     refreshFunc() async {
       selectedClasses.clear();

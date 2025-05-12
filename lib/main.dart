@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 late MyAppState appState;
 SharedPreferences? prefs;
 late Account account;
+late String userPass;
 
 bool loggedIn = false;
 
@@ -24,6 +25,7 @@ void main() async {
       prefs?.getString("credential-id") ?? "",
       (prefs?.getString("credential-pass") ?? ""),
     )).$1) {
+      userPass = prefs?.getString("credential-pass") ?? "";
       loggedIn = true;
     }
   }

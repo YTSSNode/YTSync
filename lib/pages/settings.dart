@@ -40,6 +40,7 @@ class SettingsPageState extends State<SettingsPage> {
   String _newTheme = appState.selectedTheme;
   String _oldTheme = "";
   bool _isChangesMade = false;
+  final TextEditingController _passText = new TextEditingController();
 
   @override
   void initState() {
@@ -198,7 +199,7 @@ class SettingsPageState extends State<SettingsPage> {
                 padding: EdgeInsets.all(16),
                 child: Text(
                   "Account Settings",
-                  style: theme.textTheme.titleLarge,
+                  style: theme.textTheme.titleMedium,
                 ),
               ),
               Padding(
@@ -234,6 +235,54 @@ class SettingsPageState extends State<SettingsPage> {
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
+              ),
+            ],
+          ),
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  "Change Password",
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(16),
+                child: Row(children: [
+                  SizedBox(
+                    width: 100.0,
+                    height: 30.0,
+                    child: TextField(
+                      obscureText: true,
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      controller: _passText,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'New Password',
+                      ),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ),
+                  Padding(padding: EdgeInsets.all(8.0)),
+                  TextButton(onPressed: () async {
+                    if (_passText.text.isEmpty) {
+                      showSnackBar(context, "New password is empty.");
+                    } else {
+                      dynamic msg = await changePassword(_passText.text);
+                      if (context.mounted) {
+                        if (msg is String) {
+                          showSnackBar(context, "Password change failed. $msg");
+                        } else {
+                          showSnackBar(context, "Password successfully changed!");
+                        }
+                      }
+                    }
+                  }, child: Text("Confirm\nChange"))
+                ])
               ),
             ],
           ),
