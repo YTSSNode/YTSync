@@ -1,6 +1,8 @@
 import 'dart:collection';
+import 'dart:ui' as html;
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:ytsync/network.dart';
 import 'package:ytsync/pages/login.dart';
 import 'package:ytsync/util.dart';
@@ -325,13 +327,27 @@ class SettingsPageState extends State<SettingsPage> {
           // Class section
           Divider(),
 
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              "Class Subscriptions",
-              style: theme.textTheme.titleLarge,
+          Row(children: [
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                "Class Subscriptions",
+                style: theme.textTheme.titleLarge,
+              ),
             ),
-          ),
+            Row(children: [
+              TextButton(onPressed: () async {
+                  final Uri url = Uri.parse('https://forms.gle/nAdFuHP2BU4TJAmC8');
+                  if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                    showSnackBar(context, "Unable to open the page for the suggest class form.");
+                  }  
+                }, child: RichText(text: TextSpan(children: [
+                  WidgetSpan(child: Icon(Icons.lightbulb_outline)),
+                  TextSpan(text: "Suggest Class")
+                ], style: theme.textTheme.bodySmall))
+              )
+            ])
+          ]),
 
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
