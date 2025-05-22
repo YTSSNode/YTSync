@@ -482,6 +482,21 @@ class SettingsPageState extends State<SettingsPage> {
               ),
             ),
           SizedBox(height: 16),
+
+          Divider(),
+
+          Row(children: [
+            TextButton(onPressed: () async {
+                final Uri url = Uri.parse('https://tinyurl.com/ytsyncfeedbackform2025test1survey');
+                if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                  showSnackBar(context, "Unable to open the page for the feedback form.");
+                }  
+              }, child: RichText(text: TextSpan(children: [
+                WidgetSpan(child: Icon(Icons.barcode_reader)),
+                TextSpan(text: " Give Feedback")
+              ], style: theme.textTheme.bodySmall))
+            )
+          ])
         ],
       ),
     );
