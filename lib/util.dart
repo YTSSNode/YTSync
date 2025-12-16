@@ -15,17 +15,52 @@ class Account {
   Account({required this.name, required this.email, required this.uuid});
 }
 
-void showSnackBar(BuildContext context, msg) {
-  if (!context.mounted) {
-    return;
-  }
+void showSnackBar(BuildContext context, String? msg) {
+  if (!context.mounted || msg == null || msg.isEmpty) return;
+
+  final theme = Theme.of(context);
+
+  final bool isYtss = appState.selectedTheme == 'ytss';
+  final bool isDark = appState.selectedTheme == 'dark';
+
+  final Color bgColor = isYtss
+      ? const Color.fromARGB(255, 235, 235, 235)
+      : isDark
+          ? const Color.fromARGB(255, 40, 40, 40)
+          : Colors.white;
+
+  final Color textColor = isYtss
+      ? Colors.black
+      : isDark
+          ? Colors.white
+          : Colors.black;
+
+  final Color borderColor = isYtss
+      ? Colors.grey.shade400
+      : isDark
+          ? Colors.grey.shade700
+          : const Color(0xFF0070D1);
 
   ScaffoldMessenger.of(context).removeCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(msg),
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      backgroundColor: bgColor,
+      elevation: 6,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: borderColor, width: 2),
+      ),
+      content: Text(
+        msg,
+        style: TextStyle(
+          fontFamily: "montserrat",
+          fontSize: 14,
+          color: textColor,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     ),
   );
 }
@@ -49,23 +84,22 @@ class AnnouncementData {
 
   final String _authorUUID;
 
-  String _title, _clazz, _author, _desc;
+  String _title, _clazz, _desc;
   DateTime _due;
   DateTime? _publish;
   bool _isCompleted = false;
   final bool _isPublic;
 
   late Digest
-  _checksum; //SHA-256 of title, class, due, author, description, and uuid
+  _checksum; //SHA-256 of title, class, due, description, and uuid
 
   void _calcChecksum() {
     var b0 = utf8.encode(_title);
     var b1 = utf8.encode(_clazz);
     var b2 = int32bytes(_due.millisecondsSinceEpoch);
-    var b3 = utf8.encode(_author);
-    var b4 = utf8.encode(_desc);
-    var b5 = utf8.encode(_authorUUID);
-    var b6 = int32bytes(_id);
+    var b3 = utf8.encode(_desc);
+    var b4 = utf8.encode(_authorUUID);
+    var b5 = int32bytes(_id);
 
     var output = AccumulatorSink<Digest>();
     var input = sha1.startChunkedConversion(output);
@@ -75,7 +109,6 @@ class AnnouncementData {
     input.add(b3);
     input.add(b4);
     input.add(b5);
-    input.add(b6);
     
     var publishDate = _publish;
     if (publishDate != null) {
@@ -92,7 +125,6 @@ class AnnouncementData {
     String clazz,
     DateTime due,
     DateTime? publish,
-    String author,
     String description,
     String authorUUID,
     bool isPublic,
@@ -100,7 +132,6 @@ class AnnouncementData {
       _clazz = clazz,
       _due = due,
       _publish = publish,
-      _author = author,
       _desc = description,
       _authorUUID = authorUUID,
       _isPublic = isPublic {
@@ -121,11 +152,6 @@ class AnnouncementData {
 
   void setClass(String clazz) {
     _clazz = clazz;
-    _calcChecksum();
-  }
-
-  void setAuthor(String author) {
-    _author = author;
     _calcChecksum();
   }
 
@@ -166,10 +192,6 @@ class AnnouncementData {
 
   String getClass() {
     return _clazz;
-  }
-
-  String getAuthor() {
-    return _authorUUID == account.uuid ? "You" : _author;
   }
 
   String getPublish() {
@@ -287,20 +309,36 @@ String deadlineStr(DateTime date) {
 }
 
 String fullDateStr(DateTime date) {
-  List<String> monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+  const dayNames = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
   ];
 
-  return "${date.day} ${monthNames[date.month - 1]} ${date.year}";
+  const monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  String dayName = dayNames[(date.weekday - 1) % 7]; // weekday: 1–7
+  String day = date.day.toString().padLeft(2, '0');
+  String month = monthNames[date.month - 1];
+  String year = date.year.toString(); // full year, e.g. 2025
+
+  // Example: Monday, 24 Nov 2025
+  return "$dayName, $day $month $year";
 }

@@ -103,6 +103,7 @@ Future<(bool, String)> firebaseInit([
     _classServer.clear();
     _classUser.clear();
     _formClass.clear();
+
     if (initApp) {
       await database.collection("classRegNum").get().then((event) {
         for (var doc in event.docs) {
@@ -110,16 +111,24 @@ Future<(bool, String)> firebaseInit([
         }
       });
 
-      var accountUnsafe =
-          name != null
-              ? await registerAccount(
-                email,
-                password,
-                name,
-                clazz,
-                registerNumber,
-              )
-              : await signIn(email, password);
+      dynamic accountUnsafe;
+
+      if (name == null) {
+        accountUnsafe = await signIn(email, password);
+      } else {
+        if (!_formClass.contains(clazz)) {
+          return (false, "Class does not exist.");
+        }
+
+        accountUnsafe = await registerAccount(
+          email,
+          password,
+          name,
+          clazz,
+          registerNumber,
+        );
+      }
+
       if (accountUnsafe is String) {
         return (false, accountUnsafe);
       } else if (accountUnsafe is Account) {
@@ -129,7 +138,6 @@ Future<(bool, String)> firebaseInit([
       }
     }
 
-    //get all public announcements
     await database.collection("announcements").get().then((event) {
       for (var doc in event.docs) {
         Map<String, dynamic> content = doc.data();
@@ -137,15 +145,15 @@ Future<(bool, String)> firebaseInit([
           content["title"],
           content["class"],
           DateTime.parse(content["due"].toDate().toString()),
-          content.containsKey("publish") ? DateTime.parse(content["publish"].toDate().toString()) : null,
-          content["author"],
+          content.containsKey("publish")
+              ? DateTime.parse(content["publish"].toDate().toString())
+              : null,
           content["desc"],
           content["authorUUID"],
           true,
         );
         data.setId(content["id"]);
 
-        //check if user has completed it
         database
             .collection("users")
             .doc(account.uuid)
@@ -159,12 +167,10 @@ Future<(bool, String)> firebaseInit([
               }
             });
 
-        //read if annc is complete, if it is call this function
         _announcementServer.add(data);
       }
     });
 
-    //get all private announcements
     await database
         .collection("users")
         .doc(account.uuid)
@@ -177,15 +183,15 @@ Future<(bool, String)> firebaseInit([
               content["title"],
               content["class"],
               DateTime.parse(content["due"].toDate().toString()),
-              content.containsKey("publish") ? DateTime.parse(content["publish"].toDate().toString()) : null,
-              content["author"],
+              content.containsKey("publish")
+                  ? DateTime.parse(content["publish"].toDate().toString())
+                  : null,
               content["desc"],
               content["authorUUID"],
               false,
             );
             data.setId(content["id"]);
 
-            //check if private announcement is completed
             database
                 .collection("users")
                 .doc(account.uuid)
@@ -199,23 +205,20 @@ Future<(bool, String)> firebaseInit([
                   }
                 });
 
-            //read if annc is complete, if it is call this function
             _announcementServer.add(data);
           }
         });
 
-    //class name format: ${Sec 4/3/2/1} ${class name}
     for (String level in ["Sec 4", "Sec 3", "Sec 2", "Sec 1"]) {
       await database.collection("classes").doc(level).get().then((item) {
         Map<String, dynamic>? content = item.data();
         for (String name in (content?.keys.toList() ?? [])) {
-          _classServer.add("$level $name");
-          _classUser.add(NetworkClass("$level $name", false));
+          _classServer.add(name);
+          _classUser.add(NetworkClass(name, false));
         }
       });
     }
 
-    //get selected classes
     await database
         .collection("users")
         .doc(account.uuid)
@@ -225,27 +228,30 @@ Future<(bool, String)> firebaseInit([
           for (var minidoc in item.docs) {
             Map<String, dynamic> content = minidoc.data();
             if (!_classUser.contains(NetworkClass(minidoc.id, false))) {
-              _classUser.add(NetworkClass(minidoc.id, content["isselected"]));
+              _classUser.add(
+                NetworkClass(minidoc.id, content["isselected"]),
+              );
             } else if (content["isselected"]) {
-              _classUser[_classUser.indexOf(NetworkClass(minidoc.id, false))]
-                  .selected = content["isselected"];
+              _classUser[
+                      _classUser.indexOf(NetworkClass(minidoc.id, false))]
+                  .selected = true;
             }
           }
         });
-    //removing classes from the user that no longer exists.
-    for (var currentclass in _classUser) {
-      if (!_classServer.contains(currentclass.name)) {
-        _classUser.remove(currentclass);
+
+    _classUser.removeWhere((c) {
+      if (!_classServer.contains(c.name)) {
         database
             .collection("users")
             .doc(account.uuid)
             .collection("classes")
-            .doc(currentclass.name)
+            .doc(c.name)
             .delete();
+        return true;
       }
-    }
+      return false;
+    });
   } on FirebaseException catch (e) {
-    // Caught an exception from Firebase.
     return (false, getMessageFromErrorCode(e));
   }
 
@@ -262,7 +268,6 @@ Future<bool> sendAnnouncementToServer(
     if (isPublic) {
       var document = database.collection("announcements").doc(data.getChecksum());
       await document.set({
-        "author": account.name,
         "authorUUID": data.getAuthorUUID(),
         "class": data.getClass(),
         "desc": data.getDesc(),
@@ -288,7 +293,6 @@ Future<bool> sendAnnouncementToServer(
           .collection("announcements")
           .doc(data.getChecksum());
       await document.set({
-            "author": account.name,
             "authorUUID": data.getAuthorUUID(),
             "class": data.getClass(),
             "desc": data.getDesc(),
@@ -422,6 +426,7 @@ Future<dynamic> registerAccount(
     // Store user information in Firestore
     await database.collection("users").doc(uuid).set({
       "name": name,
+      "email": emailAddress,
       "class": clazz,
       "registernum": registerNumber,
     });
@@ -499,28 +504,41 @@ Future<String?> resetPassword(String email) async {
 }
 
 Future<dynamic> checkClassRegisterNumber(String clazz, String regNum) async {
+  print("DEBUG: Checking class '$clazz' against _formClass: $_formClass");
+
   try {
     var database = FirebaseFirestore.instance;
-    // Iterate through the _formClass list to check if the clazz matches
-    for (String currClass in _formClass) {
-      if (currClass == clazz) {
-        // Fetch the document from the Firestore collection
-        var docSnapshot =
-            await database.collection("classRegNum").doc(currClass).get();
 
-        // Check if the document exists and contains the regNum key
+    // Convert input to uppercase and trim spaces
+    String inputClass = clazz.trim().toUpperCase();
+
+    for (String currClass in _formClass) {
+      String docClass = currClass.trim().toUpperCase();
+      print("DEBUG: Comparing input '$inputClass' with document ID '$docClass'");
+
+      if (docClass == inputClass) {
+        // Fetch the document from Firestore
+        var docSnapshot = await database.collection("classRegNum").doc(currClass).get();
+
         if (docSnapshot.exists) {
           Map<String, dynamic>? content = docSnapshot.data();
-          return content?.containsKey(regNum) ??
-              false; // Return true if regNum exists, false otherwise
+          print("DEBUG: Found class document '$currClass' with content: $content");
+
+          // Return true if register number exists, false otherwise
+          return content?.containsKey(regNum) ?? false;
         } else {
-          return "Class does not exist. ($clazz)"; // If the document doesn't exist, return false
+          print("DEBUG: Document '$currClass' does not exist in Firestore!");
+          return "Class does not exist. ($clazz)";
         }
       }
     }
-    return "Class does not exist. ($clazz)"; // If the clazz isn't found in _formClass, return false
+
+    // No match found
+    print("DEBUG: No matching class found for '$inputClass'");
+    return "Class does not exist. ($clazz)";
+
   } on FirebaseException catch (e) {
-    // Handle Firebase-specific errors
+    print("DEBUG: Firebase exception: $e");
     return getMessageFromErrorCode(e);
   }
 }

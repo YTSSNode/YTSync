@@ -6,6 +6,9 @@ import 'package:ytsync/pages/homepage.dart';
 import 'package:ytsync/pages/login.dart';
 import 'package:ytsync/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 late MyAppState appState;
 SharedPreferences? prefs;
@@ -14,110 +17,115 @@ late Account account;
 bool loggedIn = false;
 
 void main() async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   prefs = await SharedPreferences.getInstance();
 
-  if ((prefs?.getString("credential-email") ?? "") != "") {
-    if ((await firebaseInit(
+  await FirebaseAuth.instance.authStateChanges().first;
+
+  if ((prefs?.getString("credential-email") ?? "").isNotEmpty) {
+    var result = await firebaseInit(
       true,
       prefs?.getString("credential-email") ?? "",
-      (prefs?.getString("credential-pass") ?? ""),
-    )).$1) {
+      prefs?.getString("credential-pass") ?? "",
+    );
+
+    if (result.$1) {
       loggedIn = true;
     }
   }
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   MyAppState createState() => MyAppState();
 }
 
 class MyAppState extends State<MyApp> {
   late Map<String, (ThemeMode, ThemeData)> appThemeMap;
   (ThemeMode, ThemeData) themeData = (ThemeMode.light, ThemeData.light());
-
-  String selectedTheme = 'Light';
+  String selectedTheme = 'light';
 
   late DateTime passwordTime;
 
-  MyAppState() {
+    MyAppState() {
     appThemeMap = {
       "light": (
         ThemeMode.light,
         ThemeData(
-          primarySwatch: Colors.blue,
-          secondaryHeaderColor: Colors.blueAccent,
-          cardTheme: getCardTheme(),
-          inputDecorationTheme: getInputDecorationTheme(Colors.grey[100]),
-          elevatedButtonTheme: getElevatedButtonTheme(
-            Colors.blue,
-            Colors.white,
+          primaryColor: const Color(0xFF0070D1),
+          colorScheme: const ColorScheme.light(
+            primary: Color(0xFF0070D1),
+            secondary: Color(0xFF0070D1),
           ),
+          cardColor: Colors.white,
+          scaffoldBackgroundColor: const Color(0xFFF7F7F7),
+          textTheme: const TextTheme(
+            bodyMedium: TextStyle(color: Colors.black),
+          ),
+          cardTheme: getCardTheme(),
+          inputDecorationTheme: getInputDecorationTheme(Colors.grey[100], "light"),
+          elevatedButtonTheme: getElevatedButtonTheme(const Color(0xFF0070D1), Colors.white),
           appBarTheme: getAppBarTheme(Colors.white, Colors.black),
         ),
       ),
+
+
+
       "dark": (
         ThemeMode.dark,
         ThemeData.dark().copyWith(
           primaryColor: Colors.blueGrey,
-          cardTheme: getCardTheme(),
-          inputDecorationTheme: getInputDecorationTheme(Colors.grey[800]),
-          elevatedButtonTheme: getElevatedButtonTheme(
-            Colors.blueGrey,
-            Colors.white,
+          colorScheme: const ColorScheme.dark(
+            primary: Colors.blueGrey,
+            secondary: Colors.white,
           ),
+          cardColor: Colors.grey[850],
+          scaffoldBackgroundColor: const Color(0xFF121212),
+          textTheme: const TextTheme(
+            bodyMedium: TextStyle(color: Colors.white),
+          ),
+          cardTheme: getCardTheme(),
+          inputDecorationTheme: getInputDecorationTheme(Colors.grey[800], "dark"),
+          elevatedButtonTheme: getElevatedButtonTheme(Colors.blueGrey, Colors.white),
           appBarTheme: getAppBarTheme(Colors.black, Colors.white),
         ),
       ),
-      "pink": (
-        ThemeMode.light,
-        ThemeData(
-          primarySwatch: Colors.pink,
-          scaffoldBackgroundColor: Color(0xFFFEE5EC),
-          cardTheme: getCardTheme(),
-          inputDecorationTheme: getInputDecorationTheme(
-            Color.fromARGB(255, 255, 244, 252),
-          ),
-          elevatedButtonTheme: getElevatedButtonTheme(
-            Colors.pink,
-            Colors.white,
-          ),
-          appBarTheme: getAppBarTheme(Colors.pink, Colors.white),
-          colorScheme: ColorScheme.light(
-            primary: Colors.pink,
-            secondary: Colors.white,
-          ),
-        ),
-      ),
+
       "ytss": (
         ThemeMode.light,
         ThemeData(
-          primaryColor: Color(0xFF0A1958), // Navy blue
-          scaffoldBackgroundColor: Colors.white,
-          cardTheme: getCardTheme(),
-          inputDecorationTheme: getInputDecorationTheme(Colors.grey[100]),
-          elevatedButtonTheme: getElevatedButtonTheme(
-            Color(0xFF0A1958),
-            Color(0xFFFFC700),
-          ),
-          appBarTheme: getAppBarTheme(Color(0xFF0A1958), Color(0xFFFFC700)),
-          colorScheme: ColorScheme.light(
+          primaryColor: const Color(0xFF0A1958),
+          colorScheme: const ColorScheme.light(
             primary: Color(0xFF0A1958),
             secondary: Color(0xFFFFC700),
           ),
+          cardColor: Colors.white,
+          scaffoldBackgroundColor: Colors.white,
+          textTheme: const TextTheme(
+            bodyMedium: TextStyle(color: Colors.black),
+          ),
+          cardTheme: getCardTheme(),
+          inputDecorationTheme: getInputDecorationTheme(Colors.grey[100], "ytss"), 
+          elevatedButtonTheme: getElevatedButtonTheme(
+            const Color(0xFF0A1958),
+            const Color(0xFFFFC700),
+          ),
+          appBarTheme: getAppBarTheme(Color(0xFF0A1958), Color(0xFFFFC700)),
         ),
       ),
     };
-    selectedTheme = prefs?.getString('theme') ?? 'light';
-    themeData =
-        appThemeMap[selectedTheme] ?? (ThemeMode.light, ThemeData.light());
+
+    selectedTheme = prefs?.getString('theme') ?? 'ytss';
+    themeData = appThemeMap[selectedTheme] ?? (ThemeMode.light, ThemeData.light());
 
     passwordTime = DateTime.fromMicrosecondsSinceEpoch(
       prefs?.getInt("passwordForgetTime") ?? 0,
@@ -128,8 +136,7 @@ class MyAppState extends State<MyApp> {
 
   void updateTheme() {
     setState(() {
-      themeData =
-          appThemeMap[selectedTheme] ?? (ThemeMode.light, ThemeData.light());
+      themeData = appThemeMap[selectedTheme] ?? (ThemeMode.light, ThemeData.light());
     });
   }
 
@@ -138,7 +145,7 @@ class MyAppState extends State<MyApp> {
       style: ElevatedButton.styleFrom(
         backgroundColor: bgColor,
         foregroundColor: fgColor,
-        padding: EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
@@ -153,19 +160,44 @@ class MyAppState extends State<MyApp> {
     );
   }
 
-  InputDecorationTheme getInputDecorationTheme(fillColor) {
+  InputDecorationTheme getInputDecorationTheme(Color? fillColor, String themeName) {
+    Color borderColor;
+
+    switch (themeName) {
+      case 'ytss':
+        borderColor = const Color(0xFFFFC700);
+        break;
+      case 'dark':
+        borderColor = Colors.white;
+        break;
+      default:
+        borderColor = Colors.blue;
+    }
+
     return InputDecorationTheme(
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Colors.transparent),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Colors.transparent),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: borderColor, width: 2.5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       filled: true,
       fillColor: fillColor,
     );
   }
 
+
   CardTheme getCardTheme() {
     return CardTheme(
       elevation: 5,
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
@@ -174,11 +206,10 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
       theme: themeData.$2,
       darkTheme: appThemeMap["dark"]?.$2 ?? ThemeData.dark(),
-      themeMode: themeData.$1, //custom theme mode
-      home: loggedIn ? HomePage() : LogInPage(),
+      themeMode: themeData.$1,
+      home: loggedIn ? const HomePage() : const LogInPage(),
     );
   }
 }
@@ -190,7 +221,6 @@ void appSaveToPref() async {
 Future<void> changeAppTheme(String value, Widget widget, State state) async {
   appState.selectedTheme = value;
 
-  // ignore: invalid_use_of_protected_member
   state.setState(() {
     appState.updateTheme();
   });

@@ -25,12 +25,12 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
-      case TargetPlatform.windows:
         throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
+          'DefaultFirebaseOptions have not been configured for macos - '
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
+      case TargetPlatform.windows:
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -44,43 +44,40 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBJ66xtcM4Qu0NpeQj4Ls7GXTnJxI6chus',
-    appId: '1:1028370444934:web:332ece423ad18401709707',
-    messagingSenderId: '1028370444934',
-    projectId: 'ytnode-685c7',
-    authDomain: 'ytnode-685c7.firebaseapp.com',
-    databaseURL: 'https://ytnode-685c7-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'ytnode-685c7.firebasestorage.app',
-    measurementId: 'G-R4W6HR07RT',
+    apiKey: 'AIzaSyBMwtgmw766lqbZ6aAsazUQlcnGwm9yGGs',
+    appId: '1:637579177640:web:c0d94934cf63683151dc9d',
+    messagingSenderId: '637579177640',
+    projectId: 'ytsync-a548b',
+    authDomain: 'ytsync-a548b.firebaseapp.com',
+    storageBucket: 'ytsync-a548b.firebasestorage.app',
+    measurementId: 'G-KXYJ8DGB0P',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCC52Zen8eaWC2whcrCNk60z0uZY4jDRTw',
-    appId: '1:1028370444934:android:ac08b2df74c1b68a709707',
-    messagingSenderId: '1028370444934',
-    projectId: 'ytnode-685c7',
-    databaseURL: 'https://ytnode-685c7-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'ytnode-685c7.firebasestorage.app',
+    apiKey: 'AIzaSyDBdVJxND3mwJDljWy7i-ACAbSh5HN_134',
+    appId: '1:637579177640:android:dc215438e2538e6a51dc9d',
+    messagingSenderId: '637579177640',
+    projectId: 'ytsync-a548b',
+    storageBucket: 'ytsync-a548b.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCHHBNh3EXNrPOLSnKAZbKFPXYRVKjXF7s',
-    appId: '1:1028370444934:ios:548ca8d02a92056b709707',
-    messagingSenderId: '1028370444934',
-    projectId: 'ytnode-685c7',
-    databaseURL: 'https://ytnode-685c7-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'ytnode-685c7.firebasestorage.app',
+    apiKey: 'AIzaSyBv2FaF9w1ozfcsfD_7Yg2HWW6cuqRDrrU',
+    appId: '1:637579177640:ios:186a08a785fab6bb51dc9d',
+    messagingSenderId: '637579177640',
+    projectId: 'ytsync-a548b',
+    storageBucket: 'ytsync-a548b.firebasestorage.app',
     iosBundleId: 'com.example.flutterApplication1',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCHHBNh3EXNrPOLSnKAZbKFPXYRVKjXF7s',
-    appId: '1:1028370444934:ios:548ca8d02a92056b709707',
-    messagingSenderId: '1028370444934',
-    projectId: 'ytnode-685c7',
-    databaseURL: 'https://ytnode-685c7-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'ytnode-685c7.firebasestorage.app',
-    iosBundleId: 'com.example.flutterApplication1',
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBMwtgmw766lqbZ6aAsazUQlcnGwm9yGGs',
+    appId: '1:637579177640:web:09e945d45e19356751dc9d',
+    messagingSenderId: '637579177640',
+    projectId: 'ytsync-a548b',
+    authDomain: 'ytsync-a548b.firebaseapp.com',
+    storageBucket: 'ytsync-a548b.firebasestorage.app',
+    measurementId: 'G-R3RP66MCTW',
   );
 
 }
