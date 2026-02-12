@@ -8,7 +8,7 @@ import 'package:ytsync/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'dart:html' as html;
 
 late MyAppState appState;
 SharedPreferences? prefs;
@@ -38,7 +38,7 @@ void main() async {
       loggedIn = true;
     }
   }
-
+  html.document.title = "YTSync";
   runApp(const MyApp());
 }
 
