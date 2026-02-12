@@ -32,7 +32,7 @@ class SettingsPage extends StatefulWidget {
 
 class SettingsPageState extends State<SettingsPage> {
   List<String> _selectedClasses = [];
-  List<String> _availableClasses = [];
+  final Map<String, List<String>> _availableClassesByLevel = {};
   final HashSet<String> _classesChanged = HashSet<String>();
   bool _isClassDropdownOpen = false;
   final Map<String, bool> _isDropdownOpenLvl = {
@@ -66,25 +66,6 @@ class SettingsPageState extends State<SettingsPage> {
     super.initState();
     _selectedClasses = List.from(widget.selectedClasses);
     _oldTheme = appState.selectedTheme;
-    fetchSec4Classes();
-  }
-
-  Future<void> fetchSec4Classes() async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('classes')
-          .doc('Sec 4')
-          .get();
-
-      if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>;
-        _availableClasses = data.keys.toList();
-        for (var c in _availableClasses) _isClassHovered[c] = false;
-        setState(() {});
-      }
-    } catch (e) {
-      showSnackBar(context, "Failed to load classes: $e");
-    }
   }
 
   void updateTheme(String value) {
@@ -887,7 +868,7 @@ class SettingsPageState extends State<SettingsPage> {
                         // Levels Dropdown
                         if (_isClassDropdownOpen)
                           Column(
-                            children: ["Sec 4", "Sec 3", "Sec 2", "Sec 1"].map((level) {
+                            children: ["Sec 1", "Sec 2", "Sec 3", "Sec 4"].map((level) {
                               final isOpen = _isDropdownOpenLvl[level] ?? false;
                               return Column(
                                 children: [
@@ -896,18 +877,21 @@ class SettingsPageState extends State<SettingsPage> {
                                     onTap: () async {
                                       setStateSB(() => _isDropdownOpenLvl[level] = !isOpen);
 
-                                      // Only fetch Sec 4 data
-                                      if (level == "Sec 4" && _availableClasses.isEmpty && !isOpen) {
+                                      if (!_availableClassesByLevel.containsKey(level) && !isOpen) {
                                         try {
                                           final doc = await FirebaseFirestore.instance
                                               .collection('classes')
                                               .doc(level)
                                               .get();
+
                                           if (doc.exists) {
                                             final data = doc.data() as Map<String, dynamic>;
-                                            _availableClasses = data.keys.toList();   // class names are keys
-                                            setStateSB(() {});
+                                            _availableClassesByLevel[level] = data.keys.toList();
+                                          } else {
+                                            _availableClassesByLevel[level] = [];
                                           }
+
+                                          setStateSB(() {});
                                         } catch (e) {
                                           showSnackBar(context, "Failed to load $level classes: $e");
                                         }
@@ -945,8 +929,8 @@ class SettingsPageState extends State<SettingsPage> {
                                       ),
                                     ),
                                   ),
-                                  // Classes List (Sec 4 only)
-                                  if (isOpen && level == "Sec 4")
+
+                                  if (isOpen)
                                     SizedBox(
                                       height: isPhone? 400 : 250,
                                       child: NotificationListener<ScrollNotification>(
@@ -966,9 +950,9 @@ class SettingsPageState extends State<SettingsPage> {
                                         child: ListView.builder(
                                           controller: classListController,
                                           physics: const ClampingScrollPhysics(),
-                                          itemCount: _availableClasses.length,
+                                          itemCount: _availableClassesByLevel[level]?.length ?? 0,
                                           itemBuilder: (context, index) {
-                                            final classData = _availableClasses[index];
+                                            final classData = _availableClassesByLevel[level]![index];
                                             final subject = classData.split(" - ")[0];
                                             final isChecked = _selectedClasses.contains(classData);
 
@@ -1012,21 +996,6 @@ class SettingsPageState extends State<SettingsPage> {
                                               ),
                                             );
                                           },
-                                        ),
-                                      ),
-                                    ),
-                                  // Empty placeholders for Sec 1-3
-                                  if (isOpen && level != "Sec 4")
-                                    Container(
-                                      height: 50,
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        "No classes available",
-                                        style: TextStyle(
-                                          fontFamily: "montserrat",
-                                          fontSize: 12,
-                                          color: appState.selectedTheme == 'dark' ? Colors.white : 
-                                                appState.selectedTheme == 'ytss' ? Colors.white :Colors.black,
                                         ),
                                       ),
                                     ),
