@@ -886,7 +886,39 @@ class SettingsPageState extends State<SettingsPage> {
 
                                           if (doc.exists) {
                                             final data = doc.data() as Map<String, dynamic>;
-                                            _availableClassesByLevel[level] = data.keys.toList();
+                                            _availableClassesByLevel[level] = data.keys.toList()
+                                              ..sort((a, b) {
+                                                final regex = RegExp(r'(\d+)|([a-zA-Z]+)');
+                                                final aParts = regex.allMatches(a.toLowerCase()).map((m) => m.group(0)!).toList();
+                                                final bParts = regex.allMatches(b.toLowerCase()).map((m) => m.group(0)!).toList();
+                                            
+                                                for (int i = 0; i < aParts.length && i < bParts.length; i++) {
+                                                  final aPart = aParts[i];
+                                                  final bPart = bParts[i];
+                                            
+                                                  final aNum = int.tryParse(aPart);
+                                                  final bNum = int.tryParse(bPart);
+                                            
+                                                  // If both are numbers → compare numerically
+                                                  if (aNum != null && bNum != null) {
+                                                    if (aNum != bNum) return aNum.compareTo(bNum);
+                                                  }
+                                                  // If one is number → number comes first
+                                                  else if (aNum != null) {
+                                                    return -1;
+                                                  } else if (bNum != null) {
+                                                    return 1;
+                                                  }
+                                                  // Both letters → compare alphabetically
+                                                  else {
+                                                    final cmp = aPart.compareTo(bPart);
+                                                    if (cmp != 0) return cmp;
+                                                  }
+                                                }
+                                            
+                                                return aParts.length.compareTo(bParts.length);
+                                              });
+
                                           } else {
                                             _availableClassesByLevel[level] = [];
                                           }
