@@ -37,6 +37,7 @@ ListView createAnnouncementList(
 
 /// Main widget for announcements — returns a ListView via buildListView()
 class AnnouncementList {
+  // --- FIELDS ---
   final List<AnnouncementData> announcements;
   final List<String> selectedClasses;
   final HashMap<String, String> displayClasses;
@@ -51,6 +52,8 @@ class AnnouncementList {
 
   late final bool isPhone;
   late final bool isTablet;
+
+  bool isTeacherUser = false;
 
   Future<Map<String, String>?> _getAuthorInfo(String uid) async {
     try {
@@ -88,7 +91,29 @@ class AnnouncementList {
       removeAnnouncement = removeAnnouncement,
       theme = theme ?? Theme.of(parentContext),
       isPhone = MediaQuery.of(parentContext).size.width < 600,
-      isTablet = MediaQuery.of(parentContext).size.width >= 600;
+      isTablet = MediaQuery.of(parentContext).size.width >= 600
+  {
+    _initTeacherStatus();
+  }
+  void _initTeacherStatus() async { /* ... */ }
+
+  Future<bool> isTeacher(String uid) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+
+      if (!doc.exists) return false;
+
+      final data = doc.data();
+      // Check if 'teacher' field exists and is an empty string
+      return data?['teacher'] != null && data!['teacher'] == "";
+    } catch (e) {
+      print('Error checking teacher role: $e');
+      return false;
+    }
+  }
 
   ListView buildListView() {
     final filtered = <AnnouncementData>[];
@@ -416,6 +441,7 @@ class AnnouncementList {
     Function removeAnnouncementFunc,
   ) {
     final cardBg = theme.cardColor;
+    final bool canDelete = data.getAuthorUUID() == account.uuid || isTeacherUser;
     final ScrollController descController = ScrollController();
     final borderColor = appState.selectedTheme == 'ytss'
         ? Colors.grey[300]!
@@ -611,7 +637,8 @@ class AnnouncementList {
     // DELETE
     TextButton(
       onPressed: () async {
-        if (data.getAuthorUUID() == account.uuid) {
+        bool teacher = await isTeacher(account.uuid);
+        if (data.getAuthorUUID() == account.uuid || teacher) {
           final themeLocal = Theme.of(context);
           showDialog(
             context: context,
@@ -690,7 +717,7 @@ class AnnouncementList {
           );
         }
       },
-      style: data.getAuthorUUID() != account.uuid
+      style: canDelete
           ? ButtonStyle(
               overlayColor:
                   MaterialStateProperty.all(Colors.transparent),
@@ -704,7 +731,7 @@ class AnnouncementList {
           fontFamily: "montserrat",
           fontSize: 15,
           fontWeight: FontWeight.bold,
-          color: data.getAuthorUUID() == account.uuid
+          color: canDelete
               ? Colors.red
               : Colors.grey,
         ),
