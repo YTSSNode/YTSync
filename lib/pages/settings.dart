@@ -4,7 +4,7 @@ import 'package:ytsync/network.dart';
 import 'package:ytsync/pages/login.dart';
 import 'package:ytsync/util.dart';
 import 'package:ytsync/main.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';a
 import 'package:firebase_auth/firebase_auth.dart';
 
 Future<List<String>> _fetchAvailableClasses() async {
@@ -896,11 +896,9 @@ class SettingsPageState extends State<SettingsPage> {
                                               final aIsSecondary = aLower.startsWith("secondary");
                                               final bIsSecondary = bLower.startsWith("secondary");
 
-                                              // 🔥 PRIORITY: Secondary classes first
                                               if (aIsSecondary && !bIsSecondary) return -1;
                                               if (!aIsSecondary && bIsSecondary) return 1;
 
-                                              // 🔽 Natural sort for same priority group
                                               final regex = RegExp(r'(\d+)|([a-zA-Z]+)');
                                               final aParts =
                                                   regex.allMatches(aLower).map((m) => m.group(0)!).toList();
